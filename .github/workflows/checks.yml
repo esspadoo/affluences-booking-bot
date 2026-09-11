@@ -1,0 +1,28 @@
+name: Repository checks
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Check JavaScript, links, and JSON without making reservations
+        run: node scripts/check.mjs
+      - name: Install PHP CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends php-cli
+      - name: Check PHP syntax
+        run: find Online scripts -name '*.php' -print0 | xargs -0 -r -n 1 php -l
+      - name: Check administrator authentication
+        run: php scripts/check-auth.php
